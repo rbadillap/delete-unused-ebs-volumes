@@ -1,1 +1,2 @@
-# Delete EBS volumes automatically
+# delete-unused-ebs-volumes
+Lambda function to delete unused EBS volumes
