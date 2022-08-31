@@ -1,0 +1,50 @@
+service: assessment
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.8
+
+functions:
+  cleanup:
+    handler: handler.run
+    events:
+      # invoke this lambda function every minute
+      - schedule: rate(1 minute)
+    role: DescribeAndDeleteVolumes
+
+resources:
+  Resources:
+    DescribeAndDeleteVolumes:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        Policies:
+          - PolicyName: ec2_describe_volumes
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - ec2:DescribeVolumes
+                    - ec2:DeleteVolume
+                  Resource: '*'
+          - PolicyName: ec2_delete_volumes
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - ec2:DeleteVolume
+                  Resource: !Sub 'arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:volume/*'
+

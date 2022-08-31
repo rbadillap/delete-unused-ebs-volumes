@@ -1,0 +1,1 @@
+# Delete EBS volumes automatically
